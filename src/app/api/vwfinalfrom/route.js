@@ -4,19 +4,27 @@ export async function GET(req) {
   try {
  
     await sequelize.authenticate();
-
     const [results] = await sequelize.query(`
-      SELECT company_id, legal_name FROM company where company_id not in (select company_id from department)
-    
+   
+    SELECT 
+    company.*, 
+    department_name, 
+    department_code, 
+    hod_name, 
+    hod_email, 
+    description, 
+    DATE_FORMAT(company.insert_at, '%Y-%m-%d %h:%i %p') AS sdt, 
+    DATE_FORMAT(department.insert_at, '%Y-%m-%d %h:%i %p') AS vdt
+    FROM company
+    INNER JOIN department 
+    ON department.company_id = company.company_id
+    ORDER BY department.insert_at DESC;
     `);
-
-    const response = new Response(
+    
+     const response = new Response(
       JSON.stringify({
         message: "Company types fetched successfully",
-        data: results.map((type) => ({
-          value: type.company_id,
-          name: type.legal_name,
-        })),
+        data: results,
         metadata: {
           totalCount: results.length,
         },

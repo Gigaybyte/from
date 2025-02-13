@@ -23,9 +23,9 @@ export default function CenteredRightAlignedForm() {
     setIsFModalOpen((prevState) => !prevState);
   };
 
-  const toggleModal = () => {
-    setIsModalOpen((prevState) => !prevState);
-  };
+  // const toggleModal = () => {
+  //   setIsModalOpen((prevState) => !prevState);
+  // };
 
   useEffect(() => {
     setIsHydrated(true);
@@ -80,11 +80,13 @@ export default function CenteredRightAlignedForm() {
       const response = await axios.post("/api/from1submit", formData);
 
       if (response.status === 200) {
-        // fetchData();
+        const response = await axios.get("/api/vw_alldtls");
+        setData(response.data.data);
+        setIsFModalOpen(false);
         setModalType("success");
         setModalMessage("Record Inserted Sucessfully");
         setIsModalOpen(true);
-
+      
         setFormData({
           companyType: "",
           legalName: "",
@@ -121,6 +123,7 @@ export default function CenteredRightAlignedForm() {
     { header: "Incorporation Number", accessor: "incorporation_number" },
     { header: "License Number", accessor: "other_license_number" },
     { header: "Submitted At", accessor: "dt" },
+   
   ];
   const [data, setData] = useState([]);
 
@@ -141,8 +144,7 @@ export default function CenteredRightAlignedForm() {
   if (loading) {
     return (
       <Spin
-        size="32"
-        colors={["red", "green", "yellow"]}
+       
         speedClasses={["", "slow-spin", "faster-spin"]}
       />
     );
@@ -288,13 +290,14 @@ export default function CenteredRightAlignedForm() {
               </button>
             </div>
           </form>
-          <Modal
+         
+        </Fmodal>
+        <Modal
             message={modalMessage}
             isOpen={isModalOpen}
             closeModal={closeModal}
             type={modalType}
           />
-        </Fmodal>
       </div>
     </>
   );

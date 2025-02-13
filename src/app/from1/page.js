@@ -2,12 +2,22 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Modal from "@/app/components/Modal";
+import Fmodal from "@/app/components/Modalfrom";
+import { DataTable } from "@/app/components/DataTable";
+import Spin from "@/app/components/Spinner";
 const Page = () => {
   const [companyTypes, setCompanyTypes] = useState([]);
   const [isHydrated, setIsHydrated] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
+  const [isFModalOpen, setIsFModalOpen] = useState(false);
   const [modalType, setModalType] = useState("error");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const toggleFModal = () => {
+    setIsFModalOpen((prevState) => !prevState);
+  };
+
   useEffect(() => {
     setIsHydrated(true);
   }, []);
@@ -24,6 +34,41 @@ const Page = () => {
 
     fetchCompanyTypes();
   }, []);
+
+  const columns = [
+    { header: "Company Name", accessor: "legal_name" },
+    { header: "Company Type", accessor: "company_type" },
+    { header: "Trading Name", accessor: "trading_name" },
+    // { header: "Abn Number", accessor: "abn_number" },
+    // { header: "Acn Number", accessor: "acn_number" },
+    // { header: "Arbn Number", accessor: "arbn_number" },
+    // { header: "Incorporation Number", accessor: "incorporation_number" },
+    // { header: "License Number", accessor: "other_license_number" },
+   
+    { header: "Department", accessor: "department_name" },
+    { header: "Department Code", accessor: "department_code" },
+    { header: "Hod Name", accessor: "hod_name" },
+    { header: "Hod Email", accessor: "hod_email" },
+    { header: "Description", accessor: "description" },
+    { header: "Submitted At", accessor: "sdt" },
+    { header: "Verified At", accessor: "vdt" },
+  ];
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const response = await axios.get("/api/vwfinalfrom");
+        setData(response.data.data);
+        setLoading(false);
+      } catch (err) {
+        setError("Error fetching data");
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+
 
   const [formData, setFormData] = useState({
     companyType: "",
@@ -68,6 +113,11 @@ const Page = () => {
         const response = await axios.post("/api/from2submit", formData);
   
         if (response.status === 200) {
+          const response = await axios.get("/api/vwfinalfrom");
+          setData(response.data.data);
+          const response1 = await axios.get("/api/vwcomany");
+          setCompanyTypes(response1.data.data);
+          setIsFModalOpen(false);
           setModalType("success");
           setModalMessage("Record Inserted Sucessfully");
           setIsModalOpen(true);
@@ -97,9 +147,35 @@ const Page = () => {
   if (!isHydrated) {
     return null;
   }
+   if (loading) {
+      return (
+        <Spin
+        
+          speedClasses={["", "slow-spin", "faster-spin"]}
+        />
+      );
+    }
+  
+    if (error) {
+      return <div>{error}</div>;
+    }
   return (
+
     <div>
-      <div className="w-full flex m-10 justify-center">
+      <div className="m-10">
+      <button
+          onClick={toggleFModal}
+          className="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 mb-2"
+          type="button"
+        >
+          + Add New
+        </button>
+        <DataTable data={data} columns={columns} />
+            <Fmodal
+                  isOpen={isFModalOpen}
+                  toggleModal={toggleFModal}
+                  Header={"Add Comany Deatails"}
+                >
         <form
           className="w-full max-w-6xl bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6"
           onSubmit={handleSubmit}
@@ -230,13 +306,16 @@ const Page = () => {
             </button>
           </div>
         </form>
+        </Fmodal>
       </div>
+      
       <Modal
         message={modalMessage}
         isOpen={isModalOpen}
         closeModal={closeModal}
         type={modalType}
       />
+      
     </div>
   );
 };

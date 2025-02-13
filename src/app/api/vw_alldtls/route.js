@@ -8,21 +8,12 @@ export async function GET(req) {
     SELECT *, DATE(insert_at) AS dt
     FROM company
     ORDER BY insert_at DESC;
-
     `);
     
      const response = new Response(
       JSON.stringify({
         message: "Company types fetched successfully",
         data: results,
-        
-        // .map((type) => ({
-        //   value: type.company_id,
-        //   legal_name: type.legal_name,
-
-
-          
-        // })),
         metadata: {
           totalCount: results.length,
         },
