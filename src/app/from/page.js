@@ -81,8 +81,6 @@ export default function CenteredRightAlignedForm() {
 
       if (response.status === 200) {
         // fetchData();
-        const response = await axios.get("/api/vw_alldtls");
-        setData(response.data.data);
         setModalType("success");
         setModalMessage("Record Inserted Sucessfully");
         setIsModalOpen(true);
