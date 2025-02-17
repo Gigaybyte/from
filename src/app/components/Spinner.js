@@ -1,18 +1,15 @@
-import React from "react";
+import React from 'react';
+import { FaSpinner } from 'react-icons/fa';
 
-const Spinner = ({ size = "24", colors = ["blue", "purple", "indigo"], speedClasses = ["", "slow-spin", "faster-spin"] }) => {
+const ReactIconSpinner = ({ message = 'working' }) => {
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-900">
-      <div className={`relative w-${size} h-${size}`}>
-        {colors.map((color, index) => (
-          <div
-            key={index}
-            className={`absolute w-full h-full border-8 border-t-8 border-transparent rounded-full animate-spin ${speedClasses[index]} border-${color}-500`}
-          ></div>
-        ))}
+    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+      <div className="flex flex-col items-center justify-center">
+        <FaSpinner className="animate-spin text-white text-4xl" />
+        <p className="mt-4 text-xl font-bold text-white">{message}</p>
       </div>
     </div>
   );
 };
 
-export default Spinner;
+export default ReactIconSpinner;
