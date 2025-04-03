@@ -2,7 +2,13 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ClipLoader } from "react-spinners";
+import clsx from "clsx";
 
+import * as React from "react";
+import Button from "@mui/material/Button";
+import Snackbar from "@mui/material/Snackbar";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
 import {
   FaMoon,
   FaSun,
@@ -34,6 +40,37 @@ export function DataTable({
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
+
+  const [open, setOpen] = React.useState(false);
+  const [openmsg, setOpenmsg] = useState("");
+
+  const handleClick = () => {
+    setOpen(true);
+  };
+
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpen(false);
+  };
+
+  const action = (
+    <React.Fragment>
+      <Button color="secondary" size="small" onClick={handleClose}>
+        UNDO
+      </Button>
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={handleClose}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </React.Fragment>
+  );
 
   const handleEditClick = (rowId) => {
     setSelectedRow(rowId);
@@ -264,12 +301,41 @@ export function DataTable({
     return buttons;
   };
 
+  const rowTheme = (rowIndex, rowId) =>
+    clsx(
+      // Default row styles based on theme
+      isDarkMode
+        ? rowIndex % 2 === 0
+          ? "bg-gray-700 hover:bg-gray-600 text-white"
+          : "bg-gray-800 hover:bg-gray-700 text-white"
+        : rowIndex % 2 === 0
+        ? "bg-white hover:bg-gray-100 text-black"
+        : "bg-gray-50 hover:bg-gray-200 text-black",
+
+      // Apply highlight styles if selected row matches
+      selectedRow === rowId &&
+        clsx({
+          "bg-blue-800 hover:bg-blue-700 text-white": Onhighligt === "edit",
+          "bg-red-700 hover:bg-red-600 text-white": Onhighligt === "delete",
+          "bg-green-600 hover:bg-green-500 text-white": Onhighligt === "green", // Fixed green not showing
+        })
+    );
+
   return (
     <div
       className={`w-full shadow-lg rounded-lg overflow-hidden ${
         isDarkMode ? "bg-gray-800" : "bg-gray-50"
       }`}
     >
+      <button onClick={handleClick}>Open Snackbar</button>
+      <Snackbar
+        open={open}
+        autoHideDuration={4000}
+        onClose={handleClose}
+        message={openmsg}
+        action={action}
+      />
+
       {loading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="text-center">
@@ -434,11 +500,7 @@ export function DataTable({
               {columns.map(
                 (column, index) =>
                   visibleColumns[column.accessor] && (
-                    <th
-                      key={index}
-                      scope="col"
-                      className="px-6 py-3 "
-                    >
+                    <th key={index} scope="col" className="px-6 py-3 ">
                       {column.header}
                     </th>
                   )
@@ -454,37 +516,17 @@ export function DataTable({
             {paginatedData.map((row, rowIndex) => (
               <tr
                 key={rowIndex}
-                className={`${
-                  isDarkMode
-                    ? rowIndex % 2 === 0
-                      ? "bg-gray-700 text-white hover:bg-gray-600"
-                      : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                    : rowIndex % 2 === 0
-                    ? "bg-white text-gray-800 hover:bg-gray-100"
-                    : "bg-gray-50 text-gray-800 hover:bg-gray-100"
-                } border-b transition duration-150 ease-in-out ${
-                  Onhighligt === "edit" && selectedRow === row[Actionid]
-                    ? isDarkMode
-                      ? "bg-blue-600"
-                      : "bg-blue-300"
-                    : Onhighligt === "delete" && selectedRow === row[Actionid]
-                    ? isDarkMode
-                      ? "bg-red-600"
-                      : "bg-red-300"
-                    : Onhighligt === "green" && selectedRow === row[Actionid]
-                    ? isDarkMode
-                      ? "bg-green-600"
-                      : "bg-green-300"
-                    : ""
-                }`}
+                className={clsx(
+                  "border-b transition",
+                  rowTheme(rowIndex, row[Actionid])
+                )}
               >
                 {Isslno && (
                   <td
                     scope="col"
                     className="px-6 py-3 whitespace-nowrap text-center"
                   >
-                        {(currentPage - 1) * itemsPerPage + (rowIndex + 1)}
-
+                    {(currentPage - 1) * itemsPerPage + (rowIndex + 1)}
                   </td>
                 )}
                 {columns.map(
@@ -518,6 +560,40 @@ export function DataTable({
               </tr>
             ))}
           </tbody>
+          {/* <tbody>
+            {paginatedData.map((row, rowIndex) => (
+              <tr
+                key={rowIndex}
+                className={clsx(
+                  "border-b transition",
+                  rowTheme(rowIndex, row[Actionid])
+                )}
+              >
+                {columns.map((column, colIndex) => (
+                  <td key={colIndex} className="px-6 py-4">
+                    {row[column.accessor]}
+                  </td>
+                ))}
+
+                {showActions && (
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                    <button
+                      className={`text-blue-500 hover:text-white hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 px-4 py-2 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                      onClick={() => handleEditClick(row[Actionid])}
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      className={`text-red-500 hover:text-white hover:bg-red-600 transition duration-300 ease-in-out transform hover:scale-105 ml-4 px-4 py-2 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-500`}
+                      onClick={() => handleDeleteClick(row[Actionid])}
+                    >
+                      <FaTrash />
+                    </button>
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody> */}
         </table>
       </div>
 

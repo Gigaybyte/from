@@ -9,10 +9,16 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^7.0.1",
+    "@mui/material": "^7.0.1",
     "axios": "^1.7.9",
+    "clsx": "^2.1.1",
     "crypto": "^1.0.1",
     "exceljs": "^4.4.0",
     "framer-motion": "^12.4.2",
+    "icons-material": "^0.0.1-security",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.5.18",
     "lucide-react": "^0.475.0",
@@ -24,7 +30,8 @@
     "react-spinners": "^0.15.0",
     "sequelize": "^6.37.5",
     "uuid": "^11.0.5",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "xlsx-style": "^0.8.13"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
